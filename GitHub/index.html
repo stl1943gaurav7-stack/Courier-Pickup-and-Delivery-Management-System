@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Courier Pickup & Delivery System | CA-2 Project</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h2>📦 SPEEDEX COURIER & DELIVERY SYSTEM</h2>
+    <p>B.Tech CSE SEM-1 CA-2 PROJECT | Roll: 10-11-12</p>
+    <marquee bgcolor="#ffeb3b" scrollamount="5">★★★ Welcome to Courier Management System ★★★ Book Pickup & Track Parcels Online ★★★</marquee>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="showTab('tab-cust', this)">1. Customer Reg</button>
+    <button class="nav-btn" onclick="showTab('tab-pickup', this)">2. Book Pickup</button>
+    <button class="nav-btn" onclick="showTab('tab-track', this)">3. Track Parcel</button>
+    <button class="nav-btn" onclick="showTab('tab-assign', this)">4. Assign Delivery</button>
+    <button class="nav-btn" onclick="showTab('tab-status', this)">5. Status Update</button>
+    <button class="nav-btn" onclick="showTab('tab-pod', this)">6. Confirm Delivery</button>
+    <button class="nav-btn" onclick="showTab('tab-history', this)">7. History</button>
+  </nav>
+
+  <div class="container">
+    <!-- 1. Customer Registration -->
+    <section id="tab-cust" class="tab-pane active">
+      <fieldset>
+        <legend>👤 Customer Registration</legend>
+        <form onsubmit="registerCustomer(event)">
+          <label>Full Name *:</label><input type="text" id="cust-name" required placeholder="e.g. Rahul Sharma">
+          <label>Mobile (10 digits) *:</label><input type="tel" id="cust-phone" required pattern="[0-9]{10}" placeholder="9876543210">
+          <label>Address & City *:</label><textarea id="cust-addr" required placeholder="Hostel/Flat, Street, City"></textarea>
+          <button type="submit" class="btn">Register Customer</button>
+        </form>
+      </fieldset>
+    </section>
+
+    <!-- 2. Pickup & Parcel Details -->
+    <section id="tab-pickup" class="tab-pane">
+      <fieldset>
+        <legend>📦 Book Pickup & Parcel Details</legend>
+        <form onsubmit="bookPickup(event)">
+          <label>Select Registered Customer:</label><select id="pickup-cust" onchange="autoFillSender()"></select>
+          <label>Sender Name & Phone *:</label><input type="text" id="sender-info" required placeholder="Sender Name (Phone)">
+          <label>Pickup Origin Address *:</label><input type="text" id="sender-addr" required placeholder="Pickup Address, City">
+          <label>Receiver Name & Phone *:</label><input type="text" id="rec-info" required placeholder="Receiver Name (Phone)">
+          <label>Delivery Address *:</label><input type="text" id="rec-addr" required placeholder="Delivery Address, City">
+          <label>Parcel Item & Weight (Kg) *:</label>
+          <div style="display:flex; gap:10px;">
+            <input type="text" id="parcel-desc" required placeholder="e.g. Books, Laptop">
+            <input type="number" id="parcel-weight" step="0.1" required placeholder="Weight (kg)" style="width:130px;">
+          </div>
+          <button type="submit" class="btn btn-green">🚀 Generate Shipment ID & Book</button>
+        </form>
+        <div id="booking-alert" class="alert-box" style="display:none;"></div>
+      </fieldset>
+    </section>
+
+    <!-- 3. Tracking Timeline -->
+    <section id="tab-track" class="tab-pane">
+      <fieldset>
+        <legend>🔍 Track Courier & Timeline</legend>
+        <label>Enter Shipment ID:</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="track-id" placeholder="e.g. CPD-101">
+          <button onclick="trackShipment()" class="btn" style="margin:0;">Track</button>
+        </div>
+        <div id="track-result" style="display:none; margin-top:15px;">
+          <h4 id="track-header" style="color:#003366; margin-bottom:5px;"></h4>
+          <div class="progress-bar">
+            <div class="step" id="step-1">1. Requested</div>
+            <div class="step" id="step-2">2. Picked Up</div>
+            <div class="step" id="step-3">3. In Transit</div>
+            <div class="step" id="step-4">4. Out for Delivery</div>
+            <div class="step" id="step-5">5. Delivered</div>
+          </div>
+          <h4>Timeline Log:</h4>
+          <ul id="track-timeline"></ul>
+        </div>
+      </fieldset>
+    </section>
+
+    <!-- 4. Delivery Assignment -->
+    <section id="tab-assign" class="tab-pane">
+      <fieldset>
+        <legend>👨‍💼 Delivery Agent Assignment</legend>
+        <form onsubmit="assignDelivery(event)">
+          <label>Select Shipment ID *:</label><select id="assign-id" required></select>
+          <label>Delivery Agent Name & Vehicle *:</label><input type="text" id="agent-name" required placeholder="e.g. Ramesh Kumar (Bike DL-01)">
+          <button type="submit" class="btn">Assign Agent</button>
+        </form>
+      </fieldset>
+    </section>
+
+    <!-- 5. Status Update -->
+    <section id="tab-status" class="tab-pane">
+      <fieldset>
+        <legend>🔄 Update Courier Status</legend>
+        <form onsubmit="updateStatus(event)">
+          <label>Select Shipment ID *:</label><select id="status-id" required></select>
+          <label>New Status *:</label>
+          <select id="new-status">
+            <option value="Pickup Requested">Pickup Requested</option>
+            <option value="Picked Up">Picked Up</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Out for Delivery">Out for Delivery</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+          <label>Location / Remarks *:</label><input type="text" id="status-location" required placeholder="e.g. Delhi Central Hub">
+          <button type="submit" class="btn">Update Status</button>
+        </form>
+      </fieldset>
+    </section>
+
+    <!-- 6. Delivery Confirmation -->
+    <section id="tab-pod" class="tab-pane">
+      <fieldset>
+        <legend>✍️ Delivery Confirmation</legend>
+        <form onsubmit="confirmDelivery(event)">
+          <label>Select Shipment ID *:</label><select id="pod-id" required></select>
+          <label>Received By *:</label><input type="text" id="pod-receiver" required placeholder="Receiver Name">
+          <label>Simulated 4-Digit OTP:</label>
+          <div style="display:flex; gap:10px;">
+            <button type="button" class="btn" style="margin:0;" onclick="sendOtp()">📲 Send OTP</button>
+            <input type="text" id="pod-otp" placeholder="Enter OTP" style="width:130px; margin:0;" required>
+          </div>
+          <p id="otp-hint" style="color:green; font-weight:bold; margin:6px 0;"></p>
+          <button type="submit" class="btn btn-green">Confirm Delivery</button>
+        </form>
+      </fieldset>
+    </section>
+
+    <!-- 7. History -->
+    <section id="tab-history" class="tab-pane">
+      <fieldset>
+        <legend>📋 Shipment History Table</legend>
+        <table border="1" class="history-table">
+          <thead>
+            <tr><th>ID</th><th>Sender</th><th>Receiver</th><th>Weight</th><th>Agent</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+      </fieldset>
+    </section>
+  </div>
+
+  <footer><p>© 2026 SPEEDEX Courier | HTML, CSS, JS | 1st Sem Mini Project</p></footer>
+  <script src="app.js"></script>
+</body>
+</html>
